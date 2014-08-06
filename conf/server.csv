@@ -1,0 +1,8 @@
+#
+#	Server Configuration File 
+#	
+# Server,Resetter-ID,Location,MAC-Address,Comments
+#
+# Lines beginning with # are comments
+#
+server1,10AC1F,Rack-1-MIDDLE,AA:BB:CC:01:01:01,Backup Server

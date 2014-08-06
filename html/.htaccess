@@ -1,0 +1,9 @@
+<Files ~ "^.ht">
+Order allow,deny
+Deny from all
+</Files>
+
+AuthType Basic
+AuthName "Webresetter"
+AuthUserFile .htpasswd
+Require valid-user

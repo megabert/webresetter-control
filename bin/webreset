@@ -1,0 +1,144 @@
+#!/usr/bin/env php
+<?PHP
+
+	//
+	// webreset - reset servers with telejet webrestter script
+	//
+	// This script is a frontend for sending requests to the webresetter worker
+	// to reset a server.
+	//
+	//
+	//	Usage: webreset {MACADDRESS|servername|TKSID}
+	//
+	//	You can either use the 
+	//		* server-macaddress
+	//		* the servername(e. g. vs1234)
+	//		* the webresetter-ID
+	//
+	//  Script uses the file servers.csv to figure out which servers to reset 
+	//
+
+$base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
+$path = "$base/lib".PATH_SEPARATOR."$base/conf";
+set_include_path(get_include_path().PATH_SEPARATOR.$path);
+
+include "config.php";
+include "log.php";
+include "jobs.php";
+include "read_tks_data.php";
+
+$tksid_by_servername    = array ();
+$tksid_by_macaddress    = array ();
+$servername_by_tksid    = array ();
+$location_by_servername = array ();
+
+$opt_yes	= "";
+$opt_mac	= "";
+$opt_server	= "";
+$opt_tksid	= "";
+
+$servername	= "";
+$tksid		= "";
+$macaddress	= "";
+
+function errmsg($msg) {
+
+	$out = fopen("php://stderr","a");
+	fputs ($out,"ERROR: $msg\n");
+	fclose($out);
+}
+
+function msg($msg) {
+
+	$out = fopen("php://stderr","a");
+	fputs ($out,"$msg\n");
+	fclose($out);
+}
+
+function read_params() {
+	
+	global $opt_yes, $opt_server, $opt_mac, $opt_tksid;
+
+	$options    = getopt("ym:s:i:");
+	$opt_yes    = array_key_exists("y",$options);
+	$opt_mac    = array_key_exists("m",$options)?strtolower($options["m"]):false;
+	$opt_server = array_key_exists("s",$options)?strtolower($options["s"]):false;
+	$opt_tksid  = array_key_exists("i",$options)?strtolower($options["i"]):false;
+
+	if(!$opt_mac and !$opt_server and !$opt_tksid) {
+		msg("\nwebreset: reset servers using telejet webresetter");
+		msg("\nUsage: webreset [ -y ] [ -m <macaddr> ] [ -s <servername> ] [ -i <tksid> ]\n");
+		msg("	-y		aka \"yes\". Dont ask. Just Do it!\n");
+		msg("	-m <macaddress>	specify macaddress of server to reboot, (server has to be in servers.csv for this to work");
+		msg("	-s <servername>	specify servername of server to reboot, (server has to be in servers.csv for this to work");
+		msg("	-i <tksid>	specify TKS-Webresetter-ID of server to reboot, (this works even without servers.csv\n");
+		msg("\n	On of the options -m / -s / -i has to be present\n");
+		exit(1);
+	}
+
+}
+
+function _read() {
+  $handle = fopen("php://stdin","r");
+  $val = fgets($handle, 255);
+  fclose($handle);
+  return $val; 
+}
+
+// ---------------- PROGRAM START 
+
+read_params();
+read_server_data();
+
+// --------- MAC SPECIFIED
+if ($opt_mac and !preg_match("/^([0-9a-f]{2}:?){5}[0-9a-f]{2}$/",$opt_mac)) {
+	errmsg("This is not a MAC-Address: $opt_mac\n");
+	exit(1);
+}
+if ($opt_mac and !array_key_exists($opt_mac,$tksid_by_macaddress)) {
+	errmsg("MAC-Address not found in data file $server_data_file\n");
+	exit(1);
+}
+
+if ($opt_mac and array_key_exists($opt_mac,$tksid_by_macaddress)) {
+	$tksid		= $tksid_by_macaddress["$opt_mac"];
+	$servername	= $servername_by_tksid["$tksid"];
+}
+
+// --------- SERVERNAME SPECIFIED
+if ($opt_server and !array_key_exists($opt_server,$tksid_by_servername)) {
+	errmsg("Servername not found in data file $server_data_file\n");
+	exit(1);
+}
+if ($opt_server and array_key_exists($opt_server,$tksid_by_servername)) {
+	$tksid		= $tksid_by_servername["$opt_server"];
+	$servername	= $opt_server;
+}
+
+if ($opt_tksid) {
+	$servername="";
+	if (array_key_exists($opt_tksid,$servername_by_tksid)) {
+		$servername     = $servername_by_tksid["$opt_tksid"]; }
+	$tksid		= $opt_tksid;
+	if (!ctype_xdigit($tksid)) { 	errmsg("$tksid is no valid TKS-ID(Not a hexadecimal number)\n");      		exit(1); }
+	if (strlen($tksid)!=6) { 	errmsg("$tksid is no valid TKS-ID(Not counting exactly 6 characters)\n"); 	exit(1); }
+
+}
+
+// --------- DO IT
+
+if (!$opt_yes) {
+	echo "\nDo you really want to reset TKS-Device $tksid".(($servername!="")?" for server $servername":"")." (y/n) ? ";
+	$answer = _read();
+	if(strtolower(rtrim($answer))!="y") {
+		msg("\nUser cancelled request\n");
+		exit(1);
+	}
+}
+
+lg_info("CLI: Initiating Reset of TKS-Device $tksid".(($servername!="")?" for server $servername.":"."));
+msg("\nNow resetting TKS-Device $tksid".(($servername!="")?" for server $servername.":".")."\n");
+
+mk_reset_job("$tksid","$servername(".$location_by_servername["$servername"].")");
+
+?>

@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?PHP
+
+// MAKE webresetter test jobs from Textfile server,csv
+//
+// csv-Format: $tks_address,$servername,$macaddress,$comment
+//
+
+$base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
+$path = "$base/lib".PATH_SEPARATOR."$base/conf";
+set_include_path(get_include_path().PATH_SEPARATOR.$path);
+
+include "config.php";
+include "log.php";
+include "jobs.php";
+
+$handle = fopen("$server_data_file","r");
+
+$counter=0;
+
+while (true == ($line = fgets($handle))) {
+	if(!preg_match("/AMT/",$line) and !preg_match("/^Server,/",$line)) {
+		list ($server,$address,$location) = explode(",", $line);
+		#echo $fields[0]." ".$fields[1]."\n";
+		$counter++;
+		mk_test_job($address,"$server"."__$location");
+	}
+
+}
+lg_info("Created $counter checking jobs");
+fclose($handle);
+?>

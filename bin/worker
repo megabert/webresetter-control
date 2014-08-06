@@ -1,0 +1,154 @@
+#!/usr/bin/env php
+<?PHP
+
+$base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
+$path = "$base/lib".PATH_SEPARATOR."$base/conf";
+set_include_path(get_include_path().PATH_SEPARATOR.$path);
+
+include "config.php";
+include "wc.php";
+include "log.php";
+
+function init() {
+	
+	global $job_dir, $status_dir;
+
+	if ( !file_exists("$job_dir")) {
+		lg_dbg("Job-Dir $job_dir is missing");
+		if (false !== mkdir("$job_dir",NULL,recursive)) {
+			lg_err("Cannot create job directory $job_dir");
+			exit(1);
+		}
+	}
+
+	if ( !file_exists("$status_dir")) {
+		lg_dbg("Status-Dir $job_dir is missing");
+		if (false !== mkdir("$status_dir",NULL,recursive)) {
+			lg_err("Cannot create status directory $status_dir");
+			exit(1);
+		}
+	}
+
+}
+
+function write_status($info, $address, $status) {
+
+	global $status_dir;
+
+	if (false !== ($handle = fopen($status_dir."/".$address,"w"))) {
+		lg_dbg("Writing status file $status_dir/".$address);
+		fwrite($handle,"$info $address $status ".time()."\n");
+		fclose($handle);
+	} else {
+		lg_err("Cannot open file $status_dir/".$address);
+	}
+}
+
+function write_ok_status    ($info,$address) 	{  write_status($info, $address, "OK");     }
+function write_failed_status($info,$address)    {  write_status($info, $address, "FAILED"); }
+
+
+function check_device ($info,$address) {
+
+	$ok=false;
+	lg_dbg("info=$info, address=$address");
+
+	for($i=1;$i<=3;$i++) {
+		if(checktks($address)) {
+			lg_dbg("TKS Device $address is reachable");
+			write_ok_status($info,$address);
+			$ok=true;
+			break;
+		}
+	}
+
+	if(!$ok) {
+		lg_info("TKS Device $address is unreachable 3 times");
+		write_failed_status($info,$address);
+	}
+}
+
+function hard_reset_device($info,$address) {
+
+	hardResetTKS($address);
+}
+
+function get_next_job() {
+
+	// get next highest priority job
+	//
+	// reset jobs have higher priority than check jobs
+
+	global $job_dir;
+	
+	$job  = array();
+
+	if ($handle = opendir("$job_dir")) {
+	 	chdir($job_dir);
+	  	while (false !== ($file = readdir($handle))) {
+			lg_dbg3("Got new file: $file");
+			if (preg_match("/.*\.job/",$file)) {
+				lg_dbg2("Got new job-file: $file");
+				# echo "file: $file ";
+		    		include "./$file";
+		    		if ($job["action"]  != "" and $job["address"] != "") {
+					$action  = $job["action"];
+					$address = $job["address"];
+					$info    = $job["info"];
+					$jobfile = $file;
+					# echo "detect: $action,$address,$info,$jobfile\n";
+
+					if ($job["action"] == "hardreset" ) {
+						// return immediately for high prio job	
+						# echo "unlink $file\n";
+						unlink($file);
+						closedir($handle);
+						return array($action,$info,$address);
+					}
+					
+			    	} else {
+					lg_err("Invalid Job-File: $file, job-action=" .$job["action"]
+							    ." job-address=".$job["address"]
+							    ." job-info="   .$job["info"]);
+					unlink($file);
+		    		}
+			}
+
+		}
+
+		if(array_key_exists("action", $job)) {
+			# echo "lowprio: $action,$address,$info,$jobfile\n";
+			# echo "unlink $jobfile\n";
+			unlink($jobfile);
+			closedir($handle);
+                	return array ($action,$info,$address);   
+		}
+			closedir($handle);
+	}
+	return false;
+}
+	
+
+function process_files() {
+
+	for($pc=1;$pc<=86400;$pc++) {
+	lg_dbg("starting new scan run");
+	  $job_array=get_next_job();
+	  while (false !==  $job_array ) {
+			list ($action,$info,$address) = $job_array;
+			lg_info("Worker: Got job >$action< for host $info with address $address");
+			if ($action == "check"    ) {      check_device($info,$address); }
+			if ($action == "hardreset") { hard_reset_device($info,$address); }
+			$job_array=get_next_job();
+		}
+	  echo date("H:m:s") . " ";
+	  sleep(1);
+	}
+}
+	
+
+init();
+process_files();
+
+
+?>
