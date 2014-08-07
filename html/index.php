@@ -65,9 +65,14 @@ form > span {
 		<FORM ACTION="index.php" method="POST">
 <?PHP
 
+$base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
+$path = "$base/lib".PATH_SEPARATOR."$base/conf";
+set_include_path(get_include_path().PATH_SEPARATOR.$path);
+
 include "config.php";
 include "log.php";
 include "jobs.php";
+include "read_tks_data.php";
 
 $opt_yes        = "";
 $opt_mac        = "";
@@ -82,37 +87,6 @@ $tksid_by_servername   = array ();
 $tksid_by_macaddress   = array ();
 $servername_by_tksid   = array ();
 $comment_by_servername = array ();
-
-function read_server_data() {
-
-        global $server_data_file, $tksid_by_servername, $tksid_by_macaddress, $comment_by_servername;
-
-        error_reporting(0);
-        $data = fopen($server_data_file,"r");
-        if(!$data) {
-                $e = error_get_last();
-                errmsg("Can not open data file: $server_data_file:".$e["message"]);
-                exit(1);
-        }
-        error_reporting(E_ALL);
-        while (false !== ($line = fgets($data))){
-                list ($servername,$tksid,$macaddress,$comment) = explode(",",$line);
-
-		if (preg_match('/^amt$/i'   ,$tksid))      { continue; }
-		if (preg_match('/^server$/i',$servername)) { continue; }
-		if (preg_match('/^#/'       ,$servername)) { continue; }
-
-                $macaddress                             = strtolower($macaddress);
-                $servername                             = strtolower($servername);
-                $tksid                                  = strtolower($tksid);
-
-                $tksid_by_servername["$servername"]     = $tksid;
-                $tksid_by_macaddress["$servername"]     = $tksid;
-                $servername_by_tksid["$tksid"]          = $servername;
-		$comment_by_servername["$servername"]	= ($comment!="")?$macaddress." ".$comment:"";
-        }
-        fclose($data);
-}
 
 function display_reset_form() {
 
@@ -143,7 +117,7 @@ if ( $_SERVER["REMOTE_USER"] != "admin" ) {
 		if(array_key_exists('TKSIDSERVER',$_POST)) {
 			list ($tksid, $servername) = explode("___",$_POST['TKSIDSERVER']);
 			echo "<SPAN ID='MSGINFO'>Resetanfrage f&uuml;r Server $servername / TKSID $tksid wird durchgef&uuml;hrt.</SPAN>\n";
-			system("/usr/bin/sudo /usr/bin/php /home/webresetter/work/php/webreset -y -i $tksid");
+			system("/usr/bin/sudo /usr/bin/php /home/webresetter_work/bin/webreset -y -i $tksid");
 		}
 	}
 		

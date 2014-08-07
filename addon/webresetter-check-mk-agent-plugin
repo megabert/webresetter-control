@@ -1,0 +1,9 @@
+#!/bin/bash
+
+RUNDIR=/home/webresetter_work
+
+if [ -d $RUNDIR ] ; then
+	echo "<<<webresetter>>>" 
+	cd $RUNDIR/status && find . -mmin +600 -exec rm -f "{}" \;
+	cat *
+fi

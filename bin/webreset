@@ -18,6 +18,8 @@
 	//  Script uses the file servers.csv to figure out which servers to reset 
 	//
 
+if ( preg_match("/\//",dirname($argv[0]))) { chdir(dirname($argv[0])); }
+
 $base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
 $path = "$base/lib".PATH_SEPARATOR."$base/conf";
 set_include_path(get_include_path().PATH_SEPARATOR.$path);
@@ -96,7 +98,8 @@ if ($opt_mac and !preg_match("/^([0-9a-f]{2}:?){5}[0-9a-f]{2}$/",$opt_mac)) {
 	exit(1);
 }
 if ($opt_mac and !array_key_exists($opt_mac,$tksid_by_macaddress)) {
-	errmsg("MAC-Address not found in data file $server_data_file\n");
+	var_dump($tksid_by_macaddress);
+	errmsg("MAC-Address $opt_mac not found in data file $server_data_file\n");
 	exit(1);
 }
 

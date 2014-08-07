@@ -6,6 +6,8 @@
 // csv-Format: $tks_address,$servername,$macaddress,$comment
 //
 
+if ( preg_match("/\//",dirname($argv[0]))) { chdir(dirname($argv[0])); }
+
 $base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
 $path = "$base/lib".PATH_SEPARATOR."$base/conf";
 set_include_path(get_include_path().PATH_SEPARATOR.$path);
@@ -19,9 +21,13 @@ $handle = fopen("$server_data_file","r");
 $counter=0;
 
 while (true == ($line = fgets($handle))) {
-	if(!preg_match("/AMT/",$line) and !preg_match("/^Server,/",$line)) {
-		list ($server,$address,$location) = explode(",", $line);
-		#echo $fields[0]." ".$fields[1]."\n";
+	if(
+			!preg_match("/AMT/",$line) 
+		and 	!preg_match("/^Server,/",$line)
+		and 	!preg_match("/^#/",$line)
+
+		) {
+		list ($server,$address,$macaddress,$location) = explode(",", $line);
 		$counter++;
 		mk_test_job($address,"$server"."__$location");
 	}

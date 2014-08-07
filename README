@@ -1,0 +1,37 @@
+resetter-control
+================
+
+Purpose:
+
+This is a collection of scripts, which are checking 
+and resetting servers connected via Telejet Webresetter.
+
+Functionality in Detail
+=======================
+
+There is ...
+
+- a worker process, that process requests for
+  checks and hw-resets of connected servers
+
+- a command line Scripts that resets server
+  by mac-address, servername, or directly 
+  by Webresetter-ID
+
+- a webinterface, that shows a list of servers
+  from a config file to directly reboot servers
+  by click on a web page
+
+- a job creator, which creates check-jobs for 
+  all configured webresetters
+
+- a plugin for check_mk to integrate the webresetters
+  into check_mk monitoring
+
+** MISSING **
+
+At the moment the code to control the webresetter
+Hub is not included because this is proprietary
+Software, which must not be published. It has to
+be rewritten in order to make this package
+functional.

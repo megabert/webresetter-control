@@ -5,5 +5,5 @@ Deny from all
 
 AuthType Basic
 AuthName "Webresetter"
-AuthUserFile .htpasswd
+AuthUserFile /home/webresetter_work/conf/.htpasswd
 Require valid-user

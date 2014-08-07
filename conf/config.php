@@ -1,7 +1,6 @@
 <?PHP
 
 $base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
-
 $path = "$base/lib".PATH_SEPARATOR."$base/conf";
 set_include_path(get_include_path().PATH_SEPARATOR.$path);
 

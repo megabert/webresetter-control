@@ -1,0 +1,32 @@
+# the inventory function (dummy)
+
+import time
+
+def inventory_webresetter(info):
+
+   # begin with empty inventory
+   inventory = []
+
+   # loop over all output lines of the agent
+   for line in info:
+          server=line[0]
+          inventory.append( (server, None) )
+
+   return inventory
+
+# the check function (dummy)
+def check_webresetter(item, params, info):
+        for line in info:
+                if item == line[0]:
+                        if line[2] == "OK":
+                                return [0, "OK - Last Check %s" % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(line[3]))) ] 
+                        if line[2] == "FAILED":
+                                return [2, "UNREACHABLE - Last Check %s" % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(line[3]))) ] 
+        return [3, "Unknown Error"]
+
+# declare the check to Check_MK
+check_info["webresetter"] = {
+    'check_function':            check_webresetter,
+    'inventory_function':        inventory_webresetter,
+    'service_description':       'TKS-Webresetter',
+}
