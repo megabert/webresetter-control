@@ -1,4 +1,22 @@
-Sorry, no instructions at the moment.
+Sorry, only some hints for installing it at
+the moment.
 
 Just figure out how it works and configure
 it for yourself.
+
+Installation Hints
+==================
+
+worker
+======
+
+The worker is supposed to run 
+always as daemon. Since PHP is
+not really designed for daemons
+in general the worker exits after
+about 1 day and should be restar-
+ted directly after exit.
+
+I suggest DJBs daemon tools for 
+keeping it running or any other
+service management tool.

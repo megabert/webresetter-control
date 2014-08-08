@@ -131,7 +131,13 @@ function get_next_job() {
 
 function process_files() {
 
+	// PHP is not really designed for long term daemon programs
+	// thatswhy this program exits after one day and is supposed
+	// to be restarted from outside to avoid memory overconsumption
+        // issues
+
 	for($pc=1;$pc<=86400;$pc++) {
+
 	lg_dbg("starting new scan run");
 	  $job_array=get_next_job();
 	  while (false !==  $job_array ) {
