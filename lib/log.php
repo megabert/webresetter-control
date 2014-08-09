@@ -1,11 +1,5 @@
 <?PHP
 
-$LOG_ERROR  = 1;
-$LOG_INFO   = 2;
-$LOG_DEBUG  = 3;
-$LOG_DEBUG2 = 4;
-$LOG_DEBUG3 = 5; 
-
 include "config.php";
 
 function _log($msg_level,$msg) {
