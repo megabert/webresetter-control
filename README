@@ -4,7 +4,7 @@ webresetter-control
 Purpose:
 
 This is a collection of PHP-scripts, which are checking 
-Telejet Resetters or send reset commands to the connec-
+Telejet Webresetter or send reset commands to the connec-
 ted servers. 
 
 Functionality in Detail
