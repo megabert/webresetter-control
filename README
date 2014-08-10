@@ -1,5 +1,5 @@
-resetter-control
-================
+webresetter-control
+===================
 
 Purpose:
 
@@ -35,4 +35,3 @@ Hub is not included because this is proprietary
 Software, which must not be published. It has to
 be rewritten in order to make this package
 functional.
-
