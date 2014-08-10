@@ -4,7 +4,8 @@ webresetter-control
 Purpose:
 
 This is a collection of PHP-scripts, which are checking 
-and resetting servers connected via Telejet Webresetter.
+Telejet Resetters or send reset commands to the connec-
+ted servers. 
 
 Functionality in Detail
 =======================
@@ -35,3 +36,12 @@ Hub is not included because this is proprietary
 Software, which must not be published. It has to
 be rewritten in order to make this package
 functional.
+
+If you are able to write it for your self you
+may do this by using the Reference manual on
+the ICO website. --> www.webresetter.com
+
+You will finde programming reference there:
+http://www.webresetter.com/software/2008.03.12-TKS_programmers_referrence2.doc
+
+Some Perls Snippets for the sending part are there also.
