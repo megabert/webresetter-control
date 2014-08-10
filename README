@@ -3,7 +3,7 @@ webresetter-control
 
 Purpose:
 
-This is a collection of scripts, which are checking 
+This is a collection of PHP-scripts, which are checking 
 and resetting servers connected via Telejet Webresetter.
 
 Functionality in Detail
