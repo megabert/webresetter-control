@@ -4,6 +4,7 @@ RUNDIR=/home/webresetter_work
 
 if [ -d $RUNDIR ] ; then
 	echo "<<<webresetter>>>" 
+	# remove outdated check results( >= 10 minutes)
 	cd $RUNDIR/status && find . -mmin +600 -exec rm -f "{}" \;
 	cat *
 fi

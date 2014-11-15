@@ -5,7 +5,8 @@
 
 function read_server_data() {
 
-        global $server_data_file, $tksid_by_servername, $tksid_by_macaddress, $servername_by_tksid, $location_by_servername, $comment_by_servername;
+        global $server_data_file, $tksid_by_servername, $tksid_by_macaddress;
+	global $servername_by_tksid, $location_by_servername, $comment_by_servername;
 
         error_reporting(0);
         $data = fopen($server_data_file,"r");
@@ -22,8 +23,6 @@ function read_server_data() {
 
                 if (preg_match('/^amt$/i'   ,$tksid))      { continue; }
                 if (preg_match('/^server$/i',$servername)) { continue; }
-
-		#echo "$servername,$tksid,$macaddress\n";
 
                 $macaddress                             = strtolower($macaddress);
                 $servername                             = strtolower($servername);

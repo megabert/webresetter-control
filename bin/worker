@@ -89,7 +89,6 @@ function get_next_job() {
 			lg_dbg3("Got new file: $file");
 			if (preg_match("/.*\.job/",$file)) {
 				lg_dbg2("Got new job-file: $file");
-				# echo "file: $file ";
 		    		include "./$file";
 		    		if ($job["action"]  != "" and $job["address"] != "") {
 					$action  = $job["action"];

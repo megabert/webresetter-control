@@ -6,10 +6,7 @@ $base = preg_replace("/^(.*)\/[^\/]+$/","$1",getcwd());
 $path = "$base/lib".PATH_SEPARATOR."$base/conf";
 set_include_path(get_include_path().PATH_SEPARATOR.$path);
 
-include "log.php";
-
-function hardResetTKS() { lg_err("Not implemented: hardResetTKS"); 	exit(1);	} 
-function checktks() 	{ lg_err("Not implemented: checktks");		exit(1);	}
+include "config.php";
 
 function crc($string) {
  $crc_table = array( 0 => 0x0000, 1 => 0xcc01, 2 => 0xd801, 3 => 0x1400,
@@ -32,13 +29,14 @@ function crc($string) {
  return $crc16_word;
 }
 
-function TKS_check($address) {
+function checktks($address) {
+ global $com_device;
  $dec = hexdec($address);
  $command = sprintf('#TO_KBD%c%c%c%cV', $dec >> 16, $dec >> 8 & 255, $dec & 255, 4);
  $crc = crc($command);
  $command = sprintf('%s%c%c', $command, $crc >> 8, $crc & 255);
- exec('/bin/stty -F /dev/ttyS0 2400 raw', $out);
- $com = fopen('/dev/ttyS0', 'r+');
+ exec("/bin/stty -F $com_device 2400 raw", $out);
+ $com = fopen("$com_device", 'r+');
  fputs($com, $command);
  stream_set_blocking($com, 0);
  $s = microtime(true);
@@ -78,13 +76,14 @@ function TKS_check($address) {
  return false;
 }
 
-function TKS_reset($address) {
+function hardResetTKS($address) {
+ global $com_device;
  $dec = hexdec($address);
  $command = sprintf('#TO_KBD%c%c%c%cR', $dec >> 16, $dec >> 8 & 255, $dec & 255, 4);
  $crc = crc($command);
  $command = sprintf('%s%c%c', $command, $crc >> 8, $crc & 255);
- exec('/bin/stty -F /dev/ttyS0 2400 raw', $out);
- $com = fopen('/dev/ttyS0', 'r+');
+ exec("/bin/stty -F $com_device 2400 raw", $out);
+ $com = fopen("$com_device", 'r+');
  fputs($com, $command);
  stream_set_blocking($com, 0);
  $s = microtime(true);

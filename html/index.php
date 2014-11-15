@@ -117,15 +117,11 @@ if ( $_SERVER["REMOTE_USER"] != "admin" ) {
 		if(array_key_exists('TKSIDSERVER',$_POST)) {
 			list ($tksid, $servername) = explode("___",$_POST['TKSIDSERVER']);
 			echo "<SPAN ID='MSGINFO'>Resetanfrage f&uuml;r Server $servername / TKSID $tksid wird durchgef&uuml;hrt.</SPAN>\n";
-			system("/usr/bin/php /home/webresetter_work/bin/webreset -y -i $tksid");
+			system("/usr/bin/php $base/bin/webreset -y -i $tksid");
 		}
 	}
 		
 }
- 
-
-			
-	
 ?>
 		</FORM>
 </BODY>

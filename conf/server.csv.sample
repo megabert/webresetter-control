@@ -1,6 +1,14 @@
 #
 #	Server Configuration File 
 #	
+# A simple commaseparated File for all servers and resetters
+#
+# field 1: short Servername 
+# field 2: Resetter-ID as hexcode
+# field 3: MAC-Address of the connected server, maybe empty
+# field 4: Location, maybe empty
+# field 5: comment, maybe empty
+#
 # Server,Resetter-ID,MAC-Address,Location,Comments
 #
 # Lines beginning with # are comments
