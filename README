@@ -28,20 +28,3 @@ There is ...
 
 - a plugin for check_mk to integrate the webresetters
   into check_mk monitoring
-
-** MISSING **
-
-At the moment the code to control the webresetter
-Hub is not included because this is proprietary
-Software, which must not be published. It has to
-be rewritten in order to make this package
-functional.
-
-If you are able to write it for your self you
-may do this by using the Reference manual on
-the ICO website. --> www.webresetter.com
-
-You will finde programming reference there:
-http://www.webresetter.com/software/2008.03.12-TKS_programmers_referrence2.doc
-
-Some Perls Snippets for the sending part are there also.
