@@ -32,4 +32,96 @@ function crc($string) {
  return $crc16_word;
 }
 
+function TKS_check($address) {
+ $dec = hexdec($address);
+ $command = sprintf('#TO_KBD%c%c%c%cV', $dec >> 16, $dec >> 8 & 255, $dec & 255, 4);
+ $crc = crc($command);
+ $command = sprintf('%s%c%c', $command, $crc >> 8, $crc & 255);
+ exec('/bin/stty -F /dev/ttyS0 2400 raw', $out);
+ $com = fopen('/dev/ttyS0', 'r+');
+ fputs($com, $command);
+ stream_set_blocking($com, 0);
+ $s = microtime(true);
+ $timeout = 1;
+ $buffer = '';
+ while (true) {
+  if($timeout <= microtime(true) - $s) {
+   break;
+  }
+  if(strlen($buffer) > 20) {
+   break;
+  }
+  $buffer .= fgets($com, 128);
+ }
+ fclose( $com );
+ $a = str_replace('#TO__PC', '', $buffer);
+ $x[0] = ord($a[0]);
+ $x[1] = ord($a[1]);
+ $x[2] = ord($a[2]);
+ $tks = '';
+ foreach ($x as $key => $value) {
+  $value = strtoupper(dechex($value));
+  if(strlen($value) == 1) {
+   $value = '0' . $value;
+  }
+  $tks .= $value;
+ }
+ if(strlen($tks) == 4) {
+  $tks = '00' . $tks;
+ }
+ if(strlen($tks) == 5) {
+  $tks = '0' . $tks;
+ }
+ if($tks == $address) {
+  return true;
+ }
+ return false;
+}
+
+function TKS_reset($address) {
+ $dec = hexdec($address);
+ $command = sprintf('#TO_KBD%c%c%c%cR', $dec >> 16, $dec >> 8 & 255, $dec & 255, 4);
+ $crc = crc($command);
+ $command = sprintf('%s%c%c', $command, $crc >> 8, $crc & 255);
+ exec('/bin/stty -F /dev/ttyS0 2400 raw', $out);
+ $com = fopen('/dev/ttyS0', 'r+');
+ fputs($com, $command);
+ stream_set_blocking($com, 0);
+ $s = microtime(true);
+ $timeout = 1;
+ $buffer = '';
+ while (true) {
+  if($timeout <= microtime(true) - $s) {
+   break;
+  }
+  if(strlen($buffer) > 20) {
+   break;
+  }
+  $buffer .= fgets($com, 128);
+ }
+ fclose( $com );
+ $a = str_replace('#TO__PC', '', $buffer);
+ $x[0] = ord($a[0]);
+ $x[1] = ord($a[1]);
+ $x[2] = ord($a[2]);
+ $tks = '';
+ foreach ($x as $key => $value) {
+  $value = strtoupper(dechex($value));
+  if(strlen($value) == 1) {
+   $value = '0' . $value;
+  }
+  $tks .= $value;
+ }
+ if(strlen($tks) == 4) {
+  $tks = '00' . $tks;
+ }
+ if(strlen($tks) == 5) {
+  $tks = '0' . $tks;
+ }
+ if($tks == $address) {
+  return true;
+ }
+ return false;
+}
+
 ?>
